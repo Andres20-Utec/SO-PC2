@@ -99,10 +99,12 @@ enum Type
     H
 };
 
+
 /* List element. */
 struct list_elem
 {
   enum Type type;
+  int id;
   int begin;
   int end;
   struct list_elem *prev; /* Previous list element. */
