@@ -4,6 +4,11 @@
 #include "list.h"
 #define MAX 1048576
 
+bool sort_by_begin(struct list_elem *elem1, struct list_elem *elem2, void* aux){
+    return elem1->begin < elem2->begin;
+}
+
+
 enum insertion_Type{
   F,
   B,
@@ -42,17 +47,14 @@ void request(size_t n_bits, enum insertion_Type type, int id){
                 }
                 if(current_hole){
                     int rest = current_hole->end - n_bits;
+                    current_process->begin = current_hole->begin;
+                    current_process->end = n_bits;
+                    current_hole->begin = current_hole->begin + n_bits;
+                    current_hole->end = current_hole->end + n_bits;
                     if(!rest){
-                        
+                        list_remove(current_hole);
                     }
-                    else if(current_hole->prev == NULL){
-                        
-                    }else{
-                        current_process->begin = current_hole->begin;
-                        current_process->end = n_bits;
-                        current_hole->begin = current_hole->begin + n_bits;
-                        current_hole->end = current_hole->end + n_bits;
-                    }
+                    list_insert_ordered(&cma.list_procces, new_process, &sort_by_begin, NULL);
                 }else{
                     new_process->begin = last_elemt->begin + last_elemt->end;
                     list_push_back(&cma.list_procces, new_process);
@@ -84,14 +86,36 @@ void request(size_t n_bits, enum insertion_Type type, int id){
             break;
     }
 }
-void release(){
-
+bool release(int id, struct list *list_process, struct list* list_holes){
+    struct list_elem *e = NULL;
+    int last_begin = 0;
+    for(e = list_begin(list_process); e != list_end(list_process); e = list_next(e)){
+        if(e->id == id){
+            break;
+    }
+    if(e)
+        return false;
+    e = list_remove(e);
+    e->type = H;
+    list_insert_ordered(list_holes, e, &sort_by_begin, NULL);
+    return true;
 }
 
-void merge_holes(struct list_elem* first, struct list_elem* second){
-    
-}
-void compact(){
+void compact(struct list *list_process, struct list* list_holes){
+    struct list_elem *e = NULL;
+    int last_begin = 0;
+    for(e = list_begin(list_process); e != list_end(list_process); e = list_next(e)){
+        if(last_begin == 0){
+            last_begin = e->begin + e->end;
+            e->begin = 0;
+        }else{
+            e->begin = last_begin + e->end;
+            last_begin = e->begin + e->end;
+        }
+    }
+    while(!list_empty(list_holes)){
+        list_pop_front(list_holes);
+    }
 }
 
 void stat(){
