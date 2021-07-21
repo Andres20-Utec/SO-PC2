@@ -104,10 +104,10 @@ enum Type
 /* List element. */
 struct list_elem
 {
-  enum Type type;
+  char type;
   int id;
-  long int begin;
-  long int end;
+  int begin;
+  int end;
   struct list_elem *prev; /* Previous list element. */
   struct list_elem *next; /* Next list element. */
 };
