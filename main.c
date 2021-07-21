@@ -27,7 +27,6 @@ void add_first_hole(struct list* list_holes, int begin, int end){
   first_hole->end = end;
   list_push_front(list_holes, first_hole);
 }
-struct CM_Allocation cma;
 
 void init_cm_allocation(struct list* list_holes, struct list* list_procces){
   list_init(list_procces);
@@ -267,7 +266,7 @@ void stat(struct list *list_procces, struct list *list_holes){
 int main()
 {
     char entry[40];
-    init_C_M_Allocation(&cma.list_holes,&cma.list_procces );
+    init_cm_allocation(&cma.list_holes,&cma.list_procces);
     while (true)
     {
         printf("\nallocator> ");
@@ -281,14 +280,13 @@ int main()
             int space = atoi(char_space);
             char *method = strtok(NULL, " ");
             char type;
-
             if (strcmp(operation, "F") == 0)
                 type = 'F';
             else if (strcmp(operation, "B") == 0)
                 type = 'B';
             else if (strcmp(operation, "W") == 0)
                 type = 'W';
-            request(space, type, atoi(id));
+            request(space, 'F', atoi(id));
         }
         else if (strcmp(operation, "RL") == 0)
         {
@@ -313,8 +311,6 @@ int main()
         }
         else
             printf("Entry no valid\n");
-
-        
     }
 
     return 0;
