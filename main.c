@@ -25,7 +25,6 @@ struct C_M_Allocation cma;
 void init_C_M_Allocation(){
     list_init(&cma.list_procces);
     list_init(&cma.list_holes);
-    //struct list_elemt *elem = 
 };
 
 void request(size_t n_bits, enum insertion_Type type, int id){
@@ -33,6 +32,7 @@ void request(size_t n_bits, enum insertion_Type type, int id){
     struct list_elem *current_process = list_front(&cma.list_procces);
     switch (type){
         case F:          
+        {
             struct list_elem *new_process = (struct list_elem*)malloc(sizeof(struct list_elem*));
             new_process->type = P;
             new_process->id = id;
@@ -69,27 +69,32 @@ void request(size_t n_bits, enum insertion_Type type, int id){
                 }
             }
             break;
+        }
         case B:
+        {
             if(current_hole){
 
             }else{
 
             }
             break;
+        }
 
         case W:
+        {
             if(current_hole){
 
             }else{
 
             }
             break;
+        }
     }
 }
 bool release(int id, struct list *list_process, struct list* list_holes){
     struct list_elem *e = NULL;
     int last_begin = 0;
-    for(e = list_begin(list_process); e != list_end(list_process); e = list_next(e)){
+    for(e = list_begin(list_process); e != list_end(list_process); e = list_next(e))
         if(e->id == id){
             break;
     }
