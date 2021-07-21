@@ -30,14 +30,15 @@ void init_C_M_Allocation(){
 void request(size_t n_bits, enum insertion_Type type, int id){
     struct list_elem *current_hole = list_front(&cma.list_holes);
     struct list_elem *current_process = list_front(&cma.list_procces);
+
+    struct list_elem *new_process = (struct list_elem*)malloc(sizeof(struct list_elem*));
+    new_process->type = P;
+    new_process->id = id;
+    new_process->end = n_bits;
+    struct list_elem *last_elemt = list_back(&cma.list_procces);
     switch (type){
         case F:          
         {
-            struct list_elem *new_process = (struct list_elem*)malloc(sizeof(struct list_elem*));
-            new_process->type = P;
-            new_process->id = id;
-            new_process->end = n_bits;
-            struct list_elem *last_elemt = list_back(&cma.list_procces);
             if(current_hole){
                 while(current_hole){
                     if(current_hole->end >= n_bits){
@@ -73,9 +74,22 @@ void request(size_t n_bits, enum insertion_Type type, int id){
         case B:
         {
             if(current_hole){
-
+                struct list_elem *best_process = NULL;
+                int m = MAX;
+                while(current_hole){
+                    if(current_hole->end >= n_bits){
+                        best_process = current_hole;
+                    }
+                    current_hole = list_next(current_hole);
+                }
             }else{
-
+                if(!last_elemt){
+                    new_process->begin = 0;
+                    list_push_back(&cma.list_procces, new_process);
+                }else{
+                    new_process->begin = last_elemt->begin + last_elemt->end;
+                    list_push_back(&cma.list_procces, new_process);
+                }
             }
             break;
         }
@@ -85,7 +99,13 @@ void request(size_t n_bits, enum insertion_Type type, int id){
             if(current_hole){
 
             }else{
-
+                if(!last_elemt){
+                    new_process->begin = 0;
+                    list_push_back(&cma.list_procces, new_process);
+                }else{
+                    new_process->begin = last_elemt->begin + last_elemt->end;
+                    list_push_back(&cma.list_procces, new_process);
+                }
             }
             break;
         }
@@ -94,11 +114,12 @@ void request(size_t n_bits, enum insertion_Type type, int id){
 bool release(int id, struct list *list_process, struct list* list_holes){
     struct list_elem *e = NULL;
     int last_begin = 0;
-    for(e = list_begin(list_process); e != list_end(list_process); e = list_next(e))
+    for(e = list_begin(list_process); e != list_end(list_process); e = list_next(e)){
         if(e->id == id){
             break;
+        }
     }
-    if(e)
+    if(!e)
         return false;
     e = list_remove(e);
     e->type = H;
