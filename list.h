@@ -95,12 +95,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-enum Type 
+enum Type
 {
-    P,
-    H
+  P,
+  H
 };
-
 
 /* List element. */
 struct list_elem
