@@ -62,6 +62,10 @@ static inline bool is_tail(struct list_elem *elem)
   return elem != NULL && elem->prev != NULL && elem->next == NULL;
 }
 
+bool is_the_last_(struct list_elem *elem){
+  return elem != NULL && elem->prev != NULL && elem->next == NULL;
+}
+
 /* Initializes LIST as an empty list. */
 void list_init(struct list *list)
 {

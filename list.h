@@ -106,8 +106,8 @@ struct list_elem
 {
   enum Type type;
   int id;
-  int begin;
-  int end;
+  long int begin;
+  long int end;
   struct list_elem *prev; /* Previous list element. */
   struct list_elem *next; /* Next list element. */
 };
@@ -187,6 +187,8 @@ typedef bool list_less_func(const struct list_elem *a, const struct list_elem *b
 void list_sort(struct list *, list_less_func *, void *aux);
 void list_insert_ordered(struct list *, struct list_elem *, list_less_func *, void *aux);
 void list_unique(struct list *, struct list *duplicates, list_less_func *, void *aux);
+
+bool is_the_last_(struct list_elem *elem);
 
 /* Max and min. */
 struct list_elem *list_max(struct list *, list_less_func *, void *aux);

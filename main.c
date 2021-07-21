@@ -33,23 +33,22 @@ void init_C_M_Allocation()
     first_hole->id = 0;
     first_hole->begin = 0;
     first_hole->type = H;
-    first_hole->end = 5000;
+    first_hole->end = MAX;
     list_push_back(&cma.list_holes, first_hole);
 };
 
-void request(size_t n_bits, enum insertion_Type type, int id)
+void request(long int n_bits, enum insertion_Type type, int id)
 {
     struct list_elem *new_process = (struct list_elem *)malloc(sizeof(struct list_elem *));
     new_process->type = P;
     new_process->id = id;
     new_process->end = n_bits;
     printf("HELLO1\n");
-
     switch (type)
     {
     default:
     {
-        if (!list_empty(&cma.list_holes))
+        if (list_size(&cma.list_holes) > 1)
         {
             printf("HELLO2\n");
             struct list_elem *current_hole = list_front(&cma.list_holes);
@@ -64,7 +63,7 @@ void request(size_t n_bits, enum insertion_Type type, int id)
             if (current_hole)
             {
                 struct list_elem *current_process = list_front(&cma.list_process);
-                int rest = current_hole->end - n_bits;
+                long int rest = current_hole->end - n_bits;
                 current_process->begin = current_hole->begin;
                 current_process->end = n_bits;
                 current_hole->begin = current_hole->begin + n_bits;
@@ -80,22 +79,25 @@ void request(size_t n_bits, enum insertion_Type type, int id)
                 struct list_elem *last_elemt = list_back(&cma.list_process);
                 new_process->begin = last_elemt->begin + last_elemt->end;
                 list_push_back(&cma.list_process, new_process);
+                struct list_elem *last_hole = list_back(&cma.list_holes);
+                last_hole->begin += n_bits;
+                last_hole->end -= n_bits;
             }
         }
         else
         {
+            printf("It's working\n");
             if (list_empty(&cma.list_process))
             {
-                printf("HELLO\n");
                 new_process->begin = 0;
                 list_push_back(&cma.list_process, new_process);
-                new_process = NULL;
             }
             else
             {
-                printf("Bye\n");
                 struct list_elem *last_elemt = list_back(&cma.list_process);
+                printf("%ld : %ld ", last_elemt->begin, last_elemt->end);
                 new_process->begin = last_elemt->begin + last_elemt->end;
+                printf("%ld : %ld", new_process->begin, new_process->end);
                 list_push_back(&cma.list_process, new_process);
             }
             struct list_elem *last_hole = list_back(&cma.list_holes);
@@ -218,36 +220,31 @@ void stat(struct list *list_process, struct list *list_holes)
     }
     struct list_elem *current_proccess = list_front(list_process);
     struct list_elem *current_hole = list_front(list_holes);
-    while (list_empty(list_process) && list_empty(list_holes))
-    {
-        if (current_proccess->begin < current_hole->begin)
-        {
-            printf("[%d:%d] Process%d\n", current_proccess->begin, current_proccess->end, current_proccess->id);
+    while (!is_the_last_(current_hole) && !is_the_last_(current_proccess)){
+        if (current_proccess->begin < current_hole->begin){
+            printf("[%ld:%ld] Process%d\n", current_proccess->begin, current_proccess->end, current_proccess->id);
             current_proccess = list_next(current_proccess);
         }
-        else
-        {
-            printf("[%d:%d] Unused\n", current_hole->begin, current_hole->end);
+        else{
+            printf("[%ld:%ld] Unused\n", current_hole->begin, current_hole->end);
             current_hole = list_next(current_hole);
         }
     }
 
-    while (current_proccess)
-    {
-        printf("[%d:%d] Process%d\n", current_proccess->begin, current_proccess->end, current_proccess->id);
+    while (!is_the_last_(current_proccess)){
+        printf("[%ld:%ld] Process%d\n", current_proccess->begin, current_proccess->end, current_proccess->id);
         current_proccess = list_next(current_proccess);
     }
 
-    while (current_hole)
-    {
-        printf("[%d:%d] Unused\n", current_hole->begin, current_hole->end);
+    while (!is_the_last_(current_hole)){
+        printf("[%ld:%ld] Unused\n", current_hole->begin, current_hole->end);
         current_hole = list_next(current_hole);
     }
 }
 
 int main()
 {
-    char entry[30];
+    char entry[40];
     init_C_M_Allocation();
     while (true)
     {
@@ -259,7 +256,7 @@ int main()
             printf("RQ\n");
             char *id = strtok(NULL, " ");
             char *char_space = strtok(NULL, " ");
-            int space = atoi(char_space);
+            long long space = atol(char_space);
             char *method = strtok(NULL, " ");
             enum insertion_Type type;
 
@@ -269,13 +266,13 @@ int main()
                 type = B;
             else if (strcmp(operation, "W") == 0)
                 type = W;
-            request(space, type, atoi(id));
+            request(space, type, atol(id));
         }
         else if (strcmp(operation, "RL") == 0)
         {
             printf("RL\n");
             char *id = strtok(NULL, " ");
-            release(atoi(id), &cma.list_process, &cma.list_holes);
+            release(atol(id), &cma.list_process, &cma.list_holes);
         }
         else if (strcmp(operation, "C") == 0)
         {
@@ -294,6 +291,8 @@ int main()
         }
         else
             printf("Entry no valid\n");
+
+        
     }
 
     return 0;
