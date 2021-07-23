@@ -8,16 +8,10 @@
 #define MAX_bits 1048576
 
 
-bool sort_by_begin(const struct list_elem *elem1,const struct list_elem *elem2, void *aux UNUSED)
-{
+bool sort_by_begin(const struct list_elem *elem1,const struct list_elem *elem2, void *aux UNUSED){
     return elem1->begin < elem2->begin;
 }
 
-bool max_space_elem(const struct list_elem *elem1,const struct list_elem *elem2, void *aux UNUSED){
-    int e1 = elem1->end - elem1->begin;
-    int e2 = elem2->end - elem2->begin;
-    return e1 < e2;
-}
 
 void add_first_hole(struct list* list_holes, int begin, int end){
     struct list_elem* first_hole = (struct list_elem *)malloc(sizeof(struct list_elem));
@@ -49,15 +43,12 @@ struct list_elem* first_fit(int n_bits, struct list* list_holes){
 struct list_elem* best_fit(int n_bits, struct list* list_holes){
     struct list_elem *current_hole = list_begin(list_holes);
     struct list_elem *last_hole = NULL;
-    struct list_elem *bigger_space = list_max(list_holes, max_space_elem, NULL);
     int min_space = MAX_bits;
     while (current_hole != list_end(list_holes)){
         if ((current_hole->end - current_hole->begin) >= n_bits && min_space >= (current_hole->end - current_hole->begin)){
-            printf("%d\n",min_space);
             min_space = current_hole->end - current_hole->begin;
             last_hole = current_hole;
         }
-        printf("%d\n",min_space);
         current_hole = list_next(current_hole);
     }
     return last_hole;
@@ -69,8 +60,8 @@ struct list_elem* worst_fit(int n_bits, struct list* list_holes){
     int bigger_space = n_bits;
     while (current_hole != list_end(list_holes)){
         if ((current_hole->end - current_hole->begin) >= n_bits && (current_hole->end - current_hole->begin) >= bigger_space){
-        save_hole = current_hole;
-        bigger_space = (current_hole->end - current_hole->begin);
+            save_hole = current_hole;
+            bigger_space = (current_hole->end - current_hole->begin);
         }
         current_hole = list_next(current_hole);
     }
@@ -92,12 +83,11 @@ bool request(int n_bits, char type, int id, struct list* list_procces, struct li
         current_hole = worst_fit(n_bits, list_holes);
     }
     if(current_hole != list_end(list_holes)){
-        int rest = current_hole->end - n_bits;
         new_procces->begin = current_hole->begin;
         new_procces->end = new_procces->begin + n_bits;
         // Update Hole
         current_hole->begin = new_procces->end;
-        //current_hole->end = current_hole->end - n_bits;
+        int rest = current_hole->end - current_hole->begin;
         if (rest == 0){
             list_remove(current_hole);
         }
@@ -123,7 +113,6 @@ bool request(int n_bits, char type, int id, struct list* list_procces, struct li
             list_push_back(list_procces, new_procces);
         }
         last_hole->begin += n_bits;
-        last_hole->end -= n_bits;
     }
     return true;
 }
@@ -156,7 +145,7 @@ void compact(struct list *list_process, struct list *list_holes){
     while (!list_empty(list_holes)){
         list_pop_front(list_holes);
     }
-    add_first_hole(list_holes, last_begin, MAX_bits - last_begin);
+    add_first_hole(list_holes, last_begin, MAX_bits);
 }
 
 
